@@ -1,18 +1,22 @@
 function markerSize(mag) {
-  return mag * 10;
+  return mag * 5;
 };
 
 // make function to determine color based on magnitude (see day 2 activity 1 NY boroughs) with if else
 // https://www.w3schools.com/colors/colors_picker.asp
 function markerColor(mag) {
-  if (mag > 8) {
-    return '#ff0066'
-  } else if (mag > 5) {
-    return '#ff6600'
+  if (mag > 5) {
+    return '#B41823'
+  } else if (mag > 4) {
+    return '#E52431'
+  } else if (mag > 3) {
+    return '#F65F0E'
   } else if (mag > 2) {
-    return '#ffcc00'
+    return '#F6C823'
+  } else if (mag > 1) {
+    return '#7EBA36'
   } else {
-    return '#33cc33'
+    return '#E7F6D5'
   }
 };
 
@@ -44,7 +48,8 @@ function createFeatures(earthquakeData) {
   // Run the onEachFeature function once for each piece of data in the array
   var earthquakes = L.geoJSON(earthquakeData, {
     // Define a function we want to run once for each feature in the features array
-    // Give each feature a popup describing the place and time of the earthquake
+    // Give each feature a popup describing the place and time and magnitude of the earthquake
+    // circleMarker: https://leafletjs.com/examples/geojson/
     onEachFeature: function (feature, layer) {
 
       layer.bindPopup("<h3>" + feature.properties.place +
@@ -55,6 +60,8 @@ function createFeatures(earthquakeData) {
           radius: markerSize(feature.properties.mag),
           fillColor: markerColor(feature.properties.mag),
           fillOpacity: opacity(feature.geometry.coordinates[2]),
+          // stroke false prevents the blue line from appearing around circles
+          stroke: false,
         })
     }
   });
@@ -95,7 +102,7 @@ function createMap(earthquakes) {
 
   var myMap = L.map("mapid", {
     center: [39.8283, -98.5795],
-    zoom: 4,
+    zoom: 5,
     layers: [lightLayer, earthquakes]
   })
 
@@ -104,6 +111,35 @@ function createMap(earthquakes) {
     collapsed: false
   }).addTo(myMap)
 
+  // Day 2 activity 4
+  // https://leafletjs.com/examples/choropleth/
+  // Set up the legend
+  var legend = L.control({ position: "bottomright" });
+  legend.onAdd = function(map) {
+    var div = L.DomUtil.create("div", "info legend");
+    var limits = geojson.options.limits;
+    var colors = geojson.options.colors;
+    var labels = [];
+
+    // Add min & max
+    var legendInfo = "<h1>Median Income</h1>" +
+      "<div class=\"labels\">" +
+        "<div class=\"min\">" + limits[0] + "</div>" +
+        "<div class=\"max\">" + limits[limits.length - 1] + "</div>" +
+      "</div>";
+
+    div.innerHTML = legendInfo;
+
+    limits.forEach(function(limit, index) {
+      labels.push("<li style=\"background-color: " + colors[index] + "\"></li>");
+    });
+
+    div.innerHTML += "<ul>" + labels.join("") + "</ul>";
+    return div;
+  };
+
+  // Adding legend to the map
+  legend.addTo(myMap);
 }
 
 
