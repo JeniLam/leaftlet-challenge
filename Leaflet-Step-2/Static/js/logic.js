@@ -70,6 +70,19 @@ function createFeatures(earthquakeData) {
   createMap(earthquakes);
 }
 
+// add tectonic plate information
+// day 2 activity 1
+var platesLink = "static/data/PB2002_plates.json"
+
+d3.json(platesLink).then(function (platesData) {
+  var platesLayer = LgeoJson(platesData, {
+    style: function (feature) {}
+  })
+
+})
+
+
+
 // day 1 activity 8/10
 // Adding tile layer
 function createMap(earthquakes) {
@@ -97,7 +110,8 @@ function createMap(earthquakes) {
   };
 
   var overlayMap = {
-    Earthquakes: earthquakes
+    Earthquakes: earthquakes,
+    "Tectonic Plates" : platesLayer
   };
 
   var myMap = L.map("mapid", {
