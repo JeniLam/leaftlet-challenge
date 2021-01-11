@@ -116,26 +116,18 @@ function createMap(earthquakes) {
   // Set up the legend
   var legend = L.control({ position: "bottomright" });
   legend.onAdd = function(map) {
-    var div = L.DomUtil.create("div", "info legend");
-    var limits = geojson.options.limits;
-    var colors = geojson.options.colors;
-    var labels = [];
 
-    // Add min & max
-    var legendInfo = "<h1>Median Income</h1>" +
-      "<div class=\"labels\">" +
-        "<div class=\"min\">" + limits[0] + "</div>" +
-        "<div class=\"max\">" + limits[limits.length - 1] + "</div>" +
-      "</div>";
+    var div = L.DomUtil.create("div", "info legend")
+    var mag = [0,1,2,3,4,5];
 
-    div.innerHTML = legendInfo;
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < mag.length; i++) {
+      div.innerHTML +=
+          '<i style="background:' + markerColor(mag[i] + 1) + '"></i> ' +
+          mag[i] + (mag[i + 1] ? '&ndash;' + mag[i + 1] + '<br>' : '+');
 
-    limits.forEach(function(limit, index) {
-      labels.push("<li style=\"background-color: " + colors[index] + "\"></li>");
-    });
-
-    div.innerHTML += "<ul>" + labels.join("") + "</ul>";
-    return div;
+     };
+       return div;
   };
 
   // Adding legend to the map
