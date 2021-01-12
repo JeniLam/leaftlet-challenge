@@ -72,24 +72,25 @@ function createFeatures(earthquakeData) {
 
 // add tectonic plate information
 // day 2 activity 1
-var boundLink = "static/data/PB2002_boundaries.json"
+var platesLink = "static/data/PB2002_plates.json"
 
-d3.json(boundLink, function (boundData) {
+d3.json(boundLink).then(function(platesData) {
 
-  // console.log (boundData)
-  var boundLayer = L.geoJson(boundData, {
-    style: function (feature) {
-      return {}
+  // console.log (platesData)
+  var platesLayer = L.geoJson(platesData, {
+    style: function(feature) {
+      return {
+        color: "#db4dff",
+        fillcolor: "white",
+        fillOpacity: 1
+      }
     }
   })
-
-})
-
-
+});
 
 // day 1 activity 8/10
 // Adding tile layer
-function createMap(earthquakes) {
+function createMap(earthquakes, platesLayer) {
   var lightLayer = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
     tileSize: 512,
@@ -125,7 +126,7 @@ function createMap(earthquakes) {
 
   var overlayMap = {
     Earthquakes: earthquakes,
-    // "Tectonic Plates Boundaries" : boundLayer
+    "Tectonic Plates" : platesLayer
   };
 
   var myMap = L.map("mapid", {
@@ -153,26 +154,16 @@ function createMap(earthquakes) {
 
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < mag.length; i++) {
-      from = mag [i];
-      to = mag [i + 1]-1;
+      from = mag[i];
+      to = mag[i + 1] - 1;
       labels.push(
         '<i style="background:' + markerColor(from + 1) + '"></i> ' +
         from + (to ? '&ndash;' + to : '+'));
-        }
-        div.innerHTML = labels.join('<br>');
-        return div;
-    //   div.innerHTML +=
-    //     '<i style="background:' + markerColor(mag[i] + 1) + '"></i> ' +
-    //     mag[i] + (mag[i + 1] ? '&ndash;' + mag[i + 1] + '<br>' : '+');
-    // };
-    // div.innerHTML = labels.join('<br>')
-    // return div;
+    }
+    div.innerHTML = labels.join('<br>');
+    return div;
   };
 
   // Adding legend to the map
   legend.addTo(myMap);
 }
-
-
-
-

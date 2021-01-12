@@ -117,23 +117,27 @@ function createMap(earthquakes) {
   var legend = L.control({ position: "bottomright" });
   legend.onAdd = function(map) {
 
-    var div = L.DomUtil.create("div", "info legend")
-    var mag = [0,1,2,3,4,5];
+    var div = L.DomUtil.create("div", "info legend"),
+      // https://stackoverflow.com/questions/21307647/leaflet-adding-a-legend-title
+      labels = ['<strong> Earthquake Magnitude </strong>'],
+      from, to;
+    var mag = [0, 1, 2, 3, 4, 5];
 
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < mag.length; i++) {
-      div.innerHTML +=
-          '<i style="background:' + markerColor(mag[i] + 1) + '"></i> ' +
-          mag[i] + (mag[i + 1] ? '&ndash;' + mag[i + 1] + '<br>' : '+');
-
-     };
-       return div;
+      from = mag[i];
+      to = mag[i + 1] - 1;
+      labels.push(
+        '<i style="background:' + markerColor(from + 1) + '"></i> ' +
+        from + (to ? '&ndash;' + to : '+'));
+    }
+    div.innerHTML = labels.join('<br>');
+    return div;
   };
 
   // Adding legend to the map
   legend.addTo(myMap);
 }
-
 
 
 
