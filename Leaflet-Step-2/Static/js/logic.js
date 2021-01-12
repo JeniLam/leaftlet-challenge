@@ -72,11 +72,15 @@ function createFeatures(earthquakeData) {
 
 // add tectonic plate information
 // day 2 activity 1
-var platesLink = "static/data/PB2002_plates.json"
+var boundLink = "static/data/PB2002_boundaries.json"
 
-d3.json(platesLink).then(function (platesData) {
-  var platesLayer = LgeoJson(platesData, {
-    style: function (feature) {}
+d3.json(boundLink, function (boundData) {
+
+  // console.log (boundData)
+  var boundLayer = L.geoJson(boundData, {
+    style: function (feature) {
+      return {}
+    }
   })
 
 })
@@ -100,18 +104,28 @@ function createMap(earthquakes) {
     tileSize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    id: "mapbox/satellite-v9",
+    id: "mapbox/satellite-streets-v11",
     accessToken: API_KEY
   });
 
+  var darkLayer = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
+    maxZoom: 18,
+    zoomOffset: -1,
+    id: "mapbox/dark-v10",
+    accessToken: API_KEY
+  })
+
   var baseMaps = {
     Light: lightLayer,
-    Satellite: satelliteLayer
+    Dark: darkLayer,
+    Satellite: satelliteLayer,
   };
 
   var overlayMap = {
     Earthquakes: earthquakes,
-    "Tectonic Plates" : platesLayer
+    // "Tectonic Plates Boundaries" : boundLayer
   };
 
   var myMap = L.map("mapid", {
@@ -129,19 +143,30 @@ function createMap(earthquakes) {
   // https://leafletjs.com/examples/choropleth/
   // Set up the legend
   var legend = L.control({ position: "bottomright" });
-  legend.onAdd = function(map) {
+  legend.onAdd = function (map) {
 
-    var div = L.DomUtil.create("div", "info legend")
-    var mag = [0,1,2,3,4,5];
+    var div = L.DomUtil.create("div", "info legend"),
+      // https://stackoverflow.com/questions/21307647/leaflet-adding-a-legend-title
+      labels = ['<strong> Earthquake Magnitude </strong>'],
+      from, to;
+    var mag = [0, 1, 2, 3, 4, 5];
 
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < mag.length; i++) {
-      div.innerHTML +=
-          '<i style="background:' + markerColor(mag[i] + 1) + '"></i> ' +
-          mag[i] + (mag[i + 1] ? '&ndash;' + mag[i + 1] + '<br>' : '+');
-
-     };
-       return div;
+      from = mag [i];
+      to = mag [i + 1]-1;
+      labels.push(
+        '<i style="background:' + markerColor(from + 1) + '"></i> ' +
+        from + (to ? '&ndash;' + to : '+'));
+        }
+        div.innerHTML = labels.join('<br>');
+        return div;
+    //   div.innerHTML +=
+    //     '<i style="background:' + markerColor(mag[i] + 1) + '"></i> ' +
+    //     mag[i] + (mag[i + 1] ? '&ndash;' + mag[i + 1] + '<br>' : '+');
+    // };
+    // div.innerHTML = labels.join('<br>')
+    // return div;
   };
 
   // Adding legend to the map
