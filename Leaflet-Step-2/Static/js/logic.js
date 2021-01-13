@@ -70,23 +70,6 @@ function createFeatures(earthquakeData) {
   createMap(earthquakes);
 }
 
-// add tectonic plate information
-// day 2 activity 1
-var platesLink = "static/data/PB2002_plates.json"
-
-d3.json(boundLink).then(function(platesData) {
-
-  // console.log (platesData)
-  var platesLayer = L.geoJson(platesData, {
-    style: function(feature) {
-      return {
-        color: "#db4dff",
-        fillcolor: "white",
-        fillOpacity: 1
-      }
-    }
-  })
-});
 
 // day 1 activity 8/10
 // Adding tile layer
@@ -126,7 +109,7 @@ function createMap(earthquakes, platesLayer) {
 
   var overlayMap = {
     Earthquakes: earthquakes,
-    "Tectonic Plates" : platesLayer
+    "Tectonic Plates": platesLayer
   };
 
   var myMap = L.map("mapid", {
@@ -139,6 +122,35 @@ function createMap(earthquakes, platesLayer) {
   L.control.layers(baseMaps, overlayMap, {
     collapsed: false
   }).addTo(myMap)
+
+  // add tectonic plate information
+  // day 2 activity 1
+  var platesLink = "static/data/PB2002_plates.json"
+
+  d3.json(boundLink, function (platesData) {
+
+    // console.log (platesData)
+    L.geoJson(platesData, {
+      style: function () {
+        return {
+          color: "#db4dff",
+          fillOpacity: 1
+        }
+      }
+    })
+  });
+
+  d3.json(boundLink, function(platesData) {
+    // console.log(platesData)
+    L.geoJson(platesData, {
+      style: function () {
+        return{
+          color: "#db4dff",
+          fillOpacity: 1
+        }
+      }
+    }).addTo(platesLayer)
+  })
 
   // Day 2 activity 4
   // https://leafletjs.com/examples/choropleth/
